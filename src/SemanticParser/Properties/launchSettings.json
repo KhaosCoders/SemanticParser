@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SemanticParser": {
+      "commandName": "Project",
+      "commandLineArgs": "shell file.flag"
+    }
+  }
+}
