@@ -68,7 +68,13 @@ internal class ModelMapper : IModelMapper
             beforeFirstChildIndex = nodeSpan.BeginIndex;
         }
 
-        int afterLastChildIndex = nodeSpan.SubNodes[^1].EndIndex ?? nodeSpan.EndIndex ?? nodeSpan.BeginIndex;
+        int? afterLastChildIndex = nodeSpan.SubNodes[^1].EndIndex;
+        if (afterLastChildIndex != default)
+        {
+            afterLastChildIndex++;
+        }
+
+        afterLastChildIndex ??= nodeSpan.EndIndex ?? nodeSpan.BeginIndex;
         if (afterLastChildIndex > (nodeSpan.EndIndex ?? nodeSpan.BeginIndex))
         {
             afterLastChildIndex = nodeSpan.EndIndex ?? nodeSpan.BeginIndex;
@@ -77,7 +83,7 @@ internal class ModelMapper : IModelMapper
         return new(nodeSpan.Name, nodeSpan.Type)
         {
             HeaderSpan = new int[] { nodeSpan.BeginIndex, beforeFirstChildIndex },
-            FooterSpan = new int[] { afterLastChildIndex, nodeSpan.EndIndex ?? nodeSpan.BeginIndex },
+            FooterSpan = new int[] { afterLastChildIndex.Value, nodeSpan.EndIndex ?? nodeSpan.BeginIndex },
         };
     }
 
