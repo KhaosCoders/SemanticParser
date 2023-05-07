@@ -32,12 +32,25 @@ public class ParserConfigTests
                 },
                 new NodeSetting
                 {
+                    Key = "property",
+                    Type = "property",
+                    BeginPattern = @"(?i)(?m)^[ \t]*[\w]+[\s]*=",
+                    NamePattern = @"(?i)(?m)^[ \t]*([\w]+)[\s]*=",
+                    OnlyWithin = new ContainerSetting
+                    {
+                        BeginPattern = @"(?i)(?m)^[ \t]*defi(?:n(?:e)?)?\b",
+                        EndPattern = @"(?i)(?m)^[ \t]*(?:endde(?:f(?:i(?:n(?:e)?)?)?)?|func(?:t(?:i(?:o(?:n)?)?)?)?|proc(?:e(?:d(?:u(?:r(?:e)?)?)?)?)?)\b"
+                    },
+                    EndOn = new List<string> { "procedure", "function", "property" }
+                },
+                new NodeSetting
+                {
                     Key = "define",
                     BeginPattern = @"(?i)(?m)^\s*defi(?:n(?:e)?)?\b",
                     TypePattern = @"(?i)(?m)^\s*defi(?:n(?:e)?)?\s+([\w]+)\b",
                     NamePattern = @"(?i)(?m)^\s*defi(?:n(?:e)?)?\s+[\w]+\s+([\w]+)",
                     EndPattern = @"(?i)(?m)^\s*endde(?:f(?:i(?:n(?:e)?)?)?)?\b",
-                    SubNodes = new List<string> { "procedure", "function" }
+                    SubNodes = new List<string> { "procedure", "function", "property" }
                 },
                 new NodeSetting
                 {
@@ -66,17 +79,28 @@ public class ParserConfigTests
         // Assert
         Assert.IsNotNull(ruleSet);
         Assert.AreEqual(1, ruleSet.RootNodes.Count);
-        Assert.AreEqual("prg", ruleSet.RootNodes[0].Key);
-        Assert.AreEqual("prg", ruleSet.RootNodes[0].Type);
-        Assert.AreEqual("{FileName}", ruleSet.RootNodes[0].Name);
-        Assert.IsNotNull(ruleSet.RootNodes[0].BeginPattern);
-        Assert.IsNull(ruleSet.RootNodes[0].TypePattern);
-        Assert.IsNull(ruleSet.RootNodes[0].NamePattern);
-        Assert.IsNull(ruleSet.RootNodes[0].EndPattern);
-        Assert.AreEqual(0, ruleSet.RootNodes[0].EndOn.Count);
-        Assert.AreEqual(3, ruleSet.RootNodes[0].SubNodes.Count);
-        Assert.AreEqual("procedure", ruleSet.RootNodes[0].SubNodes[0].Key);
-        Assert.AreEqual("function", ruleSet.RootNodes[0].SubNodes[1].Key);
-        Assert.AreEqual("define", ruleSet.RootNodes[0].SubNodes[2].Key);
+
+        NodeDefinition prg = ruleSet.RootNodes[0];
+        Assert.AreEqual("prg", prg.Key);
+        Assert.AreEqual("prg", prg.Type);
+        Assert.AreEqual("{FileName}", prg.Name);
+        Assert.IsNotNull(prg.BeginPattern);
+        Assert.IsNull(prg.TypePattern);
+        Assert.IsNull(prg.NamePattern);
+        Assert.IsNull(prg.EndPattern);
+        Assert.AreEqual(0, prg.EndOn.Count);
+        Assert.AreEqual(3, prg.SubNodes.Count);
+        Assert.AreEqual("procedure", prg.SubNodes[0].Key);
+        Assert.AreEqual("function", prg.SubNodes[1].Key);
+
+        NodeDefinition define = prg.SubNodes[2];
+        Assert.AreEqual("define", define.Key);
+        Assert.AreEqual(3, define.SubNodes.Count);
+        Assert.AreEqual("procedure", define.SubNodes[0].Key);
+        Assert.AreEqual("function", define.SubNodes[1].Key);
+
+        NodeDefinition property = define.SubNodes[2];
+        Assert.AreEqual("property", property.Key);
+        Assert.IsNotNull(property.OnlyWithin);
     }
 }

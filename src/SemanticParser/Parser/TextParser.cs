@@ -123,12 +123,19 @@ internal class TextParser : ITextParser
 
     private static void FindNodeBeginnings(ParserContext ctx, NodeDefinition nodeDefinition)
     {
+        var containerBounds = FindContainerBounds(ctx, nodeDefinition.OnlyWithin);
+
         var names = FindNodeValues(ctx, nodeDefinition.NamePattern);
         var types = FindNodeValues(ctx, nodeDefinition.TypePattern);
 
         foreach (var begin in nodeDefinition.BeginPattern.EnumerateMatches(ctx.InputSpan))
         {
             int index = begin.Index;
+            if (!containerBounds.Any(b => b.Start <= index && b.End >= index))
+            {
+                continue;
+            }
+
             string name = nodeDefinition.Name ?? names.First(n => n.Index >= index).Value;
             string type = nodeDefinition.Type ?? types.First(n => n.Index >= index).Value;
             Log.Debug("Found node {Node}: {Type} {Name} at index {Index}", nodeDefinition.Key, type, name, index);
@@ -154,4 +161,35 @@ internal class TextParser : ITextParser
         return names;
     }
 
+    private static List<(int Start, int End)> FindContainerBounds(ParserContext ctx, ContainerDefinition? containerDefinition)
+    {
+        if (containerDefinition == null)
+        {
+            return new()
+            {
+                new(0, ctx.InputSpan.Length)
+            };
+        }
+
+        // Find all endings
+        List<int> endings = new();
+        foreach (var end in containerDefinition.EndPattern.EnumerateMatches(ctx.InputSpan))
+        {
+            endings.Add(end.Index);
+        }
+
+        // Find all ranges
+        List<(int Start, int End)> bounds = new();
+        foreach (var begin in containerDefinition.BeginPattern.EnumerateMatches(ctx.InputSpan))
+        {
+            int startIndex = begin.Index;
+            int endIndex = endings.Find(e => e >= startIndex);
+            if (endIndex > 0)
+            {
+                bounds.Add(new (startIndex, endIndex));
+            }
+        }
+
+        return bounds;
+    }
 }

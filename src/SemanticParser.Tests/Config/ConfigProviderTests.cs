@@ -28,12 +28,23 @@ public class ConfigProviderTests
                 "EndOn": [ "procedure", "function" ]
             },
             {
+                "Key": "property",
+                "Type": "property",
+                "BeginPattern": "(?i)(?m)^[ \\t]*[\\w]+[\\s]*=",
+                "NamePattern": "(?i)(?m)^[ \\t]*([\\w]+)[\\s]*=",
+                "OnlyWithin": {
+                    "BeginPattern": "(?i)(?m)^[ \\t]*defi(?:n(?:e)?)?\\b",
+                    "EndPattern": "(?i)(?m)^[ \\t]*(?:endde(?:f(?:i(?:n(?:e)?)?)?)?|func(?:t(?:i(?:o(?:n)?)?)?)?|proc(?:e(?:d(?:u(?:r(?:e)?)?)?)?)?)\\b"
+                },
+                "EndOn": [ "procedure", "function", "property" ]
+            },
+            {
                 "Key": "define",
                 "BeginPattern": "(?i)(?m)^[\\s]*defi(?:n(?:e)?)?\\b",
                 "TypePattern": "(?i)(?m)^[\\s]*defi(?:n(?:e)?)?[\\s]+([\\w]+)\\b",
                 "NamePattern": "(?i)(?m)^[\\s]*defi(?:n(?:e)?)?[\\s]+[\\w]+[\\s]+([\\w]+)",
                 "EndPattern": "(?i)(?m)^[\\s]*endde(?:f(?:i(?:n(?:e)?)?)?)?\\b",
-                "SubNodes": [ "procedure", "function" ]
+                "SubNodes": [ "procedure", "function", "property" ]
             },
             {
                 "Key": "prg",
@@ -94,26 +105,34 @@ public class ConfigProviderTests
         Assert.IsNotNull(result);
 
         // Nodes
-        Assert.AreEqual(5, result.Nodes.Count);
+        Assert.AreEqual(6, result.Nodes.Count);
         AssertNode(result, 0, "procedure", "procedure", null, "(?i)(?m)^[\\s]*proc(?:e(?:d(?:u(?:r(?:e)?)?)?)?)?\\b",
             null, "(?i)(?m)^[\\s]*proc(?:e(?:d(?:u(?:r(?:e)?)?)?)?)?[\\s]+([\\w]+)",
             "(?i)(?m)^[\\s]*endp(?:r(?:o(?:c)?)?)?\\b",
-            "procedure", null);
+            "procedure", null, null);
         AssertNode(result, 1, "function", "function", null, "(?i)(?m)^[\\s]*func(?:t(?:i(?:o(?:n)?)?)?)?\\b",
             null, "(?i)(?m)^[\\s]*func(?:t(?:i(?:o(?:n)?)?)?)?[\\s]+([\\w]+)",
             "(?i)(?m)^[\\s]*endfu(?:n(?:c)?)?\\b",
-            "procedure", null);
-        AssertNode(result, 2, "define", null, "(?i)(?m)^[\\s]*defi(?:n(?:e)?)?[\\s]+([\\w]+)\\b",
+            "procedure", null, null);
+        AssertNode(result, 2, "property", "property", null, "(?i)(?m)^[ \\t]*[\\w]+[\\s]*=",
+            null, "(?i)(?m)^[ \\t]*([\\w]+)[\\s]*=",
+            null, "procedure", null,
+            new()
+            {
+                BeginPattern = "(?i)(?m)^[ \\t]*defi(?:n(?:e)?)?\\b",
+                EndPattern = "(?i)(?m)^[ \\t]*(?:endde(?:f(?:i(?:n(?:e)?)?)?)?|func(?:t(?:i(?:o(?:n)?)?)?)?|proc(?:e(?:d(?:u(?:r(?:e)?)?)?)?)?)\\b"
+            });
+        AssertNode(result, 3, "define", null, "(?i)(?m)^[\\s]*defi(?:n(?:e)?)?[\\s]+([\\w]+)\\b",
             "(?i)(?m)^[\\s]*defi(?:n(?:e)?)?\\b",
             null, "(?i)(?m)^[\\s]*defi(?:n(?:e)?)?[\\s]+[\\w]+[\\s]+([\\w]+)",
             "(?i)(?m)^[\\s]*endde(?:f(?:i(?:n(?:e)?)?)?)?\\b",
-            null, "procedure");
-        AssertNode(result, 3, "prg", "prg", null, "(?i)(?m)^[\\s][^\\*&]+",
+            null, "procedure", null);
+        AssertNode(result, 4, "prg", "prg", null, "(?i)(?m)^[\\s][^\\*&]+",
             "{FileName}", null, "$", null,
-            "procedure");
-        AssertNode(result, 4, "vfp_record", "vfp_record", null, "(?m)^\\[ RECORD\\]\\r?\\n\\[PLATFORM\\] WINDOWS \\r?\\n",
+            "procedure", null);
+        AssertNode(result, 5, "vfp_record", "vfp_record", null, "(?m)^\\[ RECORD\\]\\r?\\n\\[PLATFORM\\] WINDOWS \\r?\\n",
             null, "(?m)^\\[OBJNAME\\] ([\\w]+)\\r?\\n", "", "vfp_record",
-            "procedure");
+            "procedure", null);
 
         // RuleSets
         Assert.AreEqual(2, result.RuleSets.Count);
@@ -129,9 +148,10 @@ public class ConfigProviderTests
                             string beginPattern,
                             string? name,
                             string? namePattern,
-                            string endPatter,
-                            string? endOn, string? subNodes) =>
-        Assert.AreEqual((key, type, typePattern, beginPattern, name, namePattern, endPatter, endOn, subNodes),
+                            string? endPatter,
+                            string? endOn, string? subNodes,
+                            SemanticParser.Config.ContainerSetting? container) =>
+        Assert.AreEqual((key, type, typePattern, beginPattern, name, namePattern, endPatter, endOn, subNodes, container?.BeginPattern, container?.EndPattern),
                                        (result.Nodes[index].Key,
                                        result.Nodes[index].Type,
                                        result.Nodes[index].TypePattern,
@@ -140,7 +160,9 @@ public class ConfigProviderTests
                                        result.Nodes[index].NamePattern,
                                        result.Nodes[index].EndPattern,
                                        result.Nodes[index].EndOn?.FirstOrDefault(),
-                                       result.Nodes[index].SubNodes?.FirstOrDefault()
+                                       result.Nodes[index].SubNodes?.FirstOrDefault(),
+                                       result.Nodes[index].OnlyWithin?.BeginPattern,
+                                       result.Nodes[index].OnlyWithin?.EndPattern
             ));
 
     private static void AssertRuleSet(SemanticParser.Config.ParserSetting result,

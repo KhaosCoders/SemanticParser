@@ -37,6 +37,11 @@ internal class NodeDefinition
         {
             ArgumentNullException.ThrowIfNull(setting.Name, nameof(setting.Name));
         }
+
+        if(setting.OnlyWithin != null)
+        {
+            this.OnlyWithin = new ContainerDefinition(setting.OnlyWithin);
+        }
     }
 
     public string Key => this._setting.Key!;
@@ -59,4 +64,5 @@ internal class NodeDefinition
 
     public List<NodeDefinition> SubNodes { get; } = new();
 
+    public ContainerDefinition? OnlyWithin { get; set; }
 }

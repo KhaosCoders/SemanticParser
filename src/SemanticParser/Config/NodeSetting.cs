@@ -20,4 +20,6 @@ internal class NodeSetting
     public List<string>? EndOn { get; set; }
 
     public List<string>? SubNodes { get; set; }
+
+    public ContainerSetting? OnlyWithin { get; set; }
 }

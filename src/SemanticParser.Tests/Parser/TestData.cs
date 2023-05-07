@@ -8,7 +8,7 @@ internal static class TestData
 """
 * Dummy File Header
 parameters lnP1
-
+    x = 2
 return lnP1
 
 * test procedure
@@ -22,7 +22,7 @@ define class test as cusom
     cProperty2 = "2" && inline comment
 
     procedure init
-
+        y = 3
     endproc
 
     procedure method
@@ -51,6 +51,19 @@ enddef
         EndPattern = "(?i)(?m)^[\\s]*endproc\\b.*?(?=[\\n$])"
     });
 
+    public static NodeDefinition PropertyNode = new(new()
+    {
+        Key = "property",
+        Type = "property",
+        BeginPattern = @"(?i)(?m)^[ \t]*[\w]+[\s]*=",
+        NamePattern = @"(?i)(?m)^[ \t]*([\w]+)[\s]*=",
+        OnlyWithin = new ContainerSetting
+        {
+            BeginPattern = @"(?i)(?m)^[ \t]*defi(?:n(?:e)?)?\b",
+            EndPattern = @"(?i)(?m)^[ \t]*(?:endde(?:f(?:i(?:n(?:e)?)?)?)?|func(?:t(?:i(?:o(?:n)?)?)?)?|proc(?:e(?:d(?:u(?:r(?:e)?)?)?)?)?)\b"
+        }
+    });
+
     public static NodeDefinition DefineNode = new(new()
     {
         Key = "define",
@@ -68,7 +81,8 @@ enddef
 
     static TestData()
     {
-        DefineNode.SubNodes.Add(ProcNode);
+        PropertyNode.EndOn.AddRange(new[] { ProcNode, DefineNode, PropertyNode });
+        DefineNode.SubNodes.AddRange(new[] { ProcNode, PropertyNode });
         ProcNode.EndOn.AddRange(new[] { ProcNode, DefineNode });
         PrgNode.SubNodes.AddRange(new[] { ProcNode, DefineNode });
         Ruleset.RootNodes.Add(PrgNode);
