@@ -22,7 +22,7 @@ internal class ModelMapper : IModelMapper
             }
             else
             {
-                node = MapToTerminalNode(nodeSpan);
+                node = MapToTerminalNode(nodeSpan, ref ctx);
             }
 
             node.LocationSpan.StartLine = nodeSpan.BeginLine;
@@ -54,8 +54,16 @@ internal class ModelMapper : IModelMapper
         }
     }
 
-    private static Model.Node MapToTerminalNode(ParserNodeSpan nodeSpan) =>
-        new(nodeSpan.Name, nodeSpan.Type)
+    private static string MapName(ParserNodeSpan nodeSpan, ref ParserContext ctx) =>
+        nodeSpan.Name switch
+        {
+            "{FileName}" => Path.GetFileName(ctx.FilePath),
+            "{FilePath}" => ctx.FilePath,
+            _ => nodeSpan.Name,
+        };
+
+    private static Model.Node MapToTerminalNode(ParserNodeSpan nodeSpan, ref ParserContext ctx) =>
+        new(MapName(nodeSpan, ref ctx), nodeSpan.Type)
         {
             Span = new int[] { nodeSpan.BeginIndex, nodeSpan.EndIndex ?? nodeSpan.BeginIndex }
         };
