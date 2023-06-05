@@ -12,10 +12,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\.editorconfig = ..\.editorconfig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerializIt", "..\..\SerializIt\SerializIt\SerializIt.csproj", "{2C17FD9A-C644-45DB-91F2-D5BD366AE722}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerializIt.Generator", "..\..\SerializIt\SerializIt.Generator\SerializIt.Generator.csproj", "{28287A97-46DD-4C7E-9BFA-1F0DAA84DAF2}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,14 +26,6 @@ Global
 		{72D653D6-5CD3-435D-A163-DABE5863054A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72D653D6-5CD3-435D-A163-DABE5863054A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72D653D6-5CD3-435D-A163-DABE5863054A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2C17FD9A-C644-45DB-91F2-D5BD366AE722}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2C17FD9A-C644-45DB-91F2-D5BD366AE722}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2C17FD9A-C644-45DB-91F2-D5BD366AE722}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2C17FD9A-C644-45DB-91F2-D5BD366AE722}.Release|Any CPU.Build.0 = Release|Any CPU
-		{28287A97-46DD-4C7E-9BFA-1F0DAA84DAF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{28287A97-46DD-4C7E-9BFA-1F0DAA84DAF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{28287A97-46DD-4C7E-9BFA-1F0DAA84DAF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{28287A97-46DD-4C7E-9BFA-1F0DAA84DAF2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
